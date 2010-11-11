@@ -28,17 +28,25 @@
 
 
 (define liste-points
-  (lambda (t d a)
-    (if (< (distance d a) *distance-minimale*)
-        (list (segm (t d) (t a)))
+  (lambda (t a d acc)
+    (if (< (distance a d) *distance-minimale*)
+        (cons (segm (t a) (t d)) acc)
         (let ((m (point-milieu d a)))
-          (append (liste-points t a m)
-                  (liste-points t m d))))))
+          (liste-points t a m
+                        (liste-points t m d acc))))))
+
+;; (define liste-points
+;;   (lambda (t d a)
+;;     (if (< (distance d a) *distance-minimale*)
+;;         (list (segm (t d) (t a)))
+;;         (let ((m (point-milieu d a)))
+;;           (append (liste-points t a m)
+;;                   (liste-points t m d))))))
 
 (define ligne
   (lambda (depart arrivee)
     (lambda (transf)
-      (liste-points transf depart arrivee))))
+      (liste-points transf depart arrivee '()))))
 
 
 (define parcours->dessinateur
@@ -48,8 +56,8 @@
                 (lambda (lst)
                   (case (length lst)
                     ((0) '())
-                    ((1) (liste-points transf (car lst) (car lst)))
-                    (else (append (liste-points transf (car lst) (cadr lst))
+                    ((1) (liste-points transf (car lst) (car lst) '()))
+                    (else (append (liste-points transf (car lst) (cadr lst) '())
                                   (loop (cdr lst))))))))
         (loop vect-list)))))
 
