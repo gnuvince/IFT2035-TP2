@@ -19,6 +19,13 @@
       (segm (modifier-vect (segm-depart s) translate-x translate-y)
             (modifier-vect (segm-arrivee s) translate-x translate-y)))))
 
+(define etire-segm
+  (lambda (s factx facty)
+    (let ((etire-x (lambda (x) (* x factx)))
+          (etire-y (lambda (y) (* y facty))))
+      (segm (modifier-vect (segm-depart s) etire-x etire-y)
+            (modifier-vect (segm-arrivee s) etire-x etire-y)))))
+
 
 (define rotate-vect
   (lambda (v angle)
@@ -106,6 +113,12 @@
   (lambda (angle dessinateur)
     (lambda (transf)
       (map (lambda (segment) (rotate-segm segment angle)) (dessinateur transf)))))
+
+(define reduction
+  (lambda (factx facty dessinateur)
+    (lambda (transf)
+      (map (lambda (segment) (etire-segm segment factx facty))
+           (dessinateur transf)))))
 
 
 (define ell
