@@ -145,6 +145,18 @@
       (append (dessinateur1 transf) (dessinateur2 transf)))))
 
 
+(define pile
+  (lambda (prop dessinateur1 dessinateur2)
+    (lambda (transf)
+      (let ((m (- 1 prop)))
+        (append ((translation 0
+                              (- m)
+                              (reduction 1 prop dessinateur1)) transf)
+                ((translation 0
+                              prop
+                              (reduction 1 m dessinateur2)) transf))))))
+
+
 (define ell
     (parcours->dessinateur (list (vect -1/2 1)
                                  (vect -1/2 -1)
