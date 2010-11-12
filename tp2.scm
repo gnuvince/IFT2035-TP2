@@ -156,6 +156,17 @@
                               prop
                               (reduction 1 m dessinateur2)) transf))))))
 
+(define cote-a-cote
+  (lambda (prop dessinateur1 dessinateur2)
+    (lambda (transf)
+      (let ((m (- 1 prop)))
+        (append ((translation (- m)
+                              0
+                              (reduction prop 1 dessinateur1)) transf)
+                ((translation prop
+                              0
+                              (reduction m 1 dessinateur2)) transf))))))
+
 
 (define ell
     (parcours->dessinateur (list (vect -1/2 1)
