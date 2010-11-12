@@ -167,6 +167,9 @@
                               0
                               (reduction m 1 dessinateur2)) transf))))))
 
+(define chiffre
+  (lambda (n)
+    (parcours->dessinateur (vector-ref parcours-pour-chiffres n))))
 
 (define ell
     (parcours->dessinateur (list (vect -1/2 1)
