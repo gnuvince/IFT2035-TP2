@@ -91,6 +91,16 @@
   (lambda (v fx fy)
     (vect (fx (vect-x v))
           (fy (vect-y v)))))
+
+(define entier->chiffres
+  (lambda (n)
+    (letrec ((loop
+              (lambda (m acc)
+                (if (< m 9)
+                    (cons m acc)
+                    (loop (quotient m 10) (cons (modulo m 10) acc))))))
+      (loop n '()))))
+
 ;;;;;
 
 
@@ -168,8 +178,22 @@
                               (reduction m 1 dessinateur2)) transf))))))
 
 (define chiffre
+  (lambda (d)
+    (parcours->dessinateur (vector-ref parcours-pour-chiffres d))))
+
+
+(define entier->dessinateur
   (lambda (n)
-    (parcours->dessinateur (vector-ref parcours-pour-chiffres n))))
+    (let ((ds (entier->chiffres n)))
+      (letrec ((loop
+                (lambda (len lst)
+                  (if (= len 1)
+                      (chiffre (car lst))
+                      (cote-a-cote (/ 1 len)
+                                   (chiffre (car lst))
+                                   (loop (- len 1) (cdr lst)))))))
+        (loop (length ds) ds)))))
+
 
 (define ell
     (parcours->dessinateur (list (vect -1/2 1)
