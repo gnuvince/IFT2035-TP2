@@ -86,21 +86,12 @@
   (lambda (x)
     x))
 
-
-(define o
-  (lambda (f1 f2)
-    (lambda (x)
-      (f1 (f2 x)))))
-
 ;; Retourne (vect (fx v.x) (fy v.y))
 (define modifier-vect
   (lambda (v fx fy)
     (vect (fx (vect-x v))
           (fy (vect-y v)))))
 ;;;;;
-
-
-
 
 
 (define ligne
@@ -146,6 +137,12 @@
     (lambda (transf)
       (map (lambda (segment) (loupe-segm segment fact))
            (dessinateur transf)))))
+
+
+(define superposition
+  (lambda (dessinateur1 dessinateur2)
+    (lambda (transf)
+      (append (dessinateur1 transf) (dessinateur2 transf)))))
 
 
 (define ell
