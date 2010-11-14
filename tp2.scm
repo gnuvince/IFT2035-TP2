@@ -277,7 +277,7 @@
 
 
 ;; Fonction auxiliaire pour arbre->dessinateur
-;; * Si l'arbre est (): ne rien afficher
+;; * Si l'arbre est () ou un atome: ne rien afficher
 ;; * Si l'arbre a des branches: afficher une ligne à gauche
 ;;   et à droite et s'appeler récursivement avec le sous-arbre
 ;;   gauche et le sous-arbre droit.
