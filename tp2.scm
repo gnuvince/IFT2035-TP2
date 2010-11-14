@@ -11,7 +11,7 @@
 
 
 
-;;;;; Fonctions mathématiques
+;;;;; FONCTIONS MATHÉMATIQUES
 ;; Retourne la valeur d'un angle x en radians
 (define degre->radian
   (lambda (x)
@@ -96,7 +96,7 @@
 
 
 
-;;;;; Fonctions utilitaires
+;;;;; FONCTIONS UTILITAIRES
 (define id
   (lambda (x)
     x))
@@ -117,8 +117,30 @@
                     (loop (quotient m 10) (cons (modulo m 10) acc))))))
       (loop n '()))))
 
+
+;; Retourne la profondeur d'un arbre
+;; arbre vide = 0
+;; arbre      = 1 + max(gauche, droite)
+(define profondeur-arbre
+  (lambda (lst)
+    (cond
+     ((not (pair? lst)) 0)
+     (else (+ 1 (max (profondeur-arbre (car lst))
+                     (profondeur-arbre (cdr lst))))))))
+
+
+;; Retourne le nombre de feuilles (atome ou ()) d'un arbre.
+(define compter-feuilles
+  (lambda (lst)
+    (cond
+     ((not (pair? lst)) 1)
+     (else (+ (compter-feuilles (car lst))
+              (compter-feuilles (cdr lst)))))))
 ;;;;;
 
+
+
+;;;;; DESSINATEURS
 ;; Dessine un segment entre les points `depart` et `arrivee`.
 (define ligne
   (lambda (depart arrivee)
@@ -227,9 +249,9 @@
 
 ;; Dessin d'un L.
 (define ell
-    (parcours->dessinateur (list (vect -1/2 1)
-                                 (vect -1/2 -1)
-                                 (vect 1/2 -1))))
+  (parcours->dessinateur (list (vect -1/2 1)
+                               (vect -1/2 -1)
+                               (vect 1/2 -1))))
 
 
 ;; Dessin d'un losange.
@@ -252,3 +274,40 @@
 ;; Dessin vide, utilisé pour "clearer" le canvas.
 (define vide
   (parcours->dessinateur '()))
+
+
+;; Fonction auxiliaire pour arbre->dessinateur
+;; * Si l'arbre est (): ne rien afficher
+;; * Si l'arbre a des branches: afficher une ligne à gauche
+;;   et à droite et s'appeler récursivement avec le sous-arbre
+;;   gauche et le sous-arbre droit.
+(define arbre->dessinateur-aux
+  (lambda (lst hauteur largeur x y)
+    (if (not (pair? lst))
+        vide
+        (let* ((noeuds-gauche (compter-feuilles (car lst)))
+               (noeuds-droite (compter-feuilles (cdr lst)))
+               (new-x1 (- x (/ noeuds-droite largeur)))
+               (new-x2 (+ x (/ noeuds-gauche largeur)))
+               (new-y (- y hauteur)))
+          (superposition
+           (ligne (vect x y) (vect new-x1 new-y))
+           (superposition
+            (ligne (vect x y) (vect new-x2 new-y))
+            (superposition
+             (arbre->dessinateur-aux (car lst) hauteur largeur new-x1 new-y)
+             (arbre->dessinateur-aux (cdr lst) hauteur largeur new-x2 new-y))))))))
+
+
+;; Dessine un arbre
+(define arbre->dessinateur
+  (lambda (lst)
+    (if (null? lst)
+        vide
+        (arbre->dessinateur-aux
+         lst                            ; l'arbre
+         (/ 2 (profondeur-arbre lst))   ; la hauteur d'un niveau
+         (compter-feuilles lst)         ; le nombre total de feuilles
+         0                              ; position x initiale
+         1))))                          ; position y initiale
+;;;;;
