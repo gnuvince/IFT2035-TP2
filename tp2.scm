@@ -2,8 +2,7 @@
 
 ;; auteur(s):
 ;; Vincent Foley-Bourgon (FOLV08078309)
-
-
+;; Eric Thivierge (THIE09016601)
 
 
 (define *distance-minimale* 1/10)
@@ -166,15 +165,15 @@
 (define translation
   (lambda (dx dy dessinateur)
     (lambda (transf)
-      (map (lambda (segment) (translate-segm segment dx dy)) (dessinateur transf)))))
+      (map (lambda (segment) (translate-segm segment dx dy))
+           (dessinateur transf)))))
 
 
 ;; Tourne un dessin autour d'un angle en degrés.
 (define rotation
   (lambda (angle dessinateur)
     (lambda (transf)
-      (map (lambda (segment)
-             (rotate-segm segment (degre->radian angle)))
+      (map (lambda (segment) (rotate-segm segment (degre->radian angle)))
            (dessinateur transf)))))
 
 
