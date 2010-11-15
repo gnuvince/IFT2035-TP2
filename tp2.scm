@@ -111,7 +111,7 @@
   (lambda (n)
     (letrec ((loop
               (lambda (m acc)
-                (if (< m 9)
+                (if (<= m 9)
                     (cons m acc)
                     (loop (quotient m 10) (cons (modulo m 10) acc))))))
       (loop n '()))))
