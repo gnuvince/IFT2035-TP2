@@ -86,6 +86,40 @@ résultat et retourner ce nouveau dessinateur.  La fonction
 par \emph{facty} verticalement.
 
 
+
+\subsection{arbre-$>$dessinateur}
+
+\usage{(arbre-$>$dessinateur lst)}
+
+Cette fonction va dessiner un arbre binaire.  Elle fait appel à
+plusieurs fonctions auxiliaires que nous allons examiner:
+
+\begin{itemize}
+\item \emph{profondeur-arbre}: cette fonction prend un arbre et
+  retourne sa profondeur en parcourant récursivement le sous-arbre de
+  gauche et le sous-arbre de droite.  On utilise la profondeur de
+  l'arbre pour fixer la hauteur de chacun des niveaux de l'arbre quand
+  on le dessinera.
+\item \emph{arbre-compte-feuilles}: cette fonction prend un arbre et
+  retourne un arbre (quasi-) isomorphe qui contient sur chaque noeud
+  interne le nombre de feuilles dans ce sous-arbre.  Cette information
+  sera utilisée pour espacer horizontalement les branches.  On utilise
+  un arbre, car autrement on devrait recalculer à chaque fois le
+  nombre de feuilles, ce qui causerait une perte inutile de
+  performance.
+\item \emph{arbre-$>$dessinateur-aux}: la fonction qui va dessiner
+  l'arbre; elle prend 6 paramètres: l'arbre à dessiner, l'arbre
+  contenant le nombre de feuilles, la hauteur d'un niveau et les
+  positions x et y de la racine.  Cette fonction s'appelle
+  récursivement jusqu'à ce qu'elle reçoive un arbre vide, à quel
+  moment elle retourne le dessinateur vide.  Si on a pas un arbre
+  vide, on utilise les fonctions \emph{superposition} et \emph{ligne}
+  pour dessiner les deux branches.
+\end{itemize}
+
+
+
+
 \section{Impressions de Scheme}
 
 \subsection{Vincent}
@@ -142,18 +176,41 @@ par \emph{facty} verticalement.
     chose de similaire au type \emph{option} de ML.}
 \item La syntaxe préfixe est un peu lourde dans les calculs
   mathématiques.
-\item Dans Emacs, il y a aucune complétion de code, détection
+\item Dans Emacs, il n'y a aucune complétion de code, détection
   d'erreurs de syntaxe ou d'accès à la documentation comme on peut
   trouver dans des IDE pour des langages comme Java.  Peut-être qu'une
   intégration de Gambit avec SLIME pourrait aider?
 \item Scheme ne possède pas de ``pattern matching'' (comme dans ML ou
   Haskell) qui permet de ``déconstruire'' une structure de données.
-  Cela demande donc de faire beaucoup d'appels manuels à des fonctions
-  comme \emph{car} et \emph{cdr} (voir les appels à \emph{caaddr} dans
-  \emph{arbre-$>$dessinateur-aux}).
+  Cela demande donc de faire beaucoup d'appels manuels de fonction
+  pourr accéder aux membres internes d'une structure de données (voir
+  les appels à \emph{caaddr} dans \emph{arbre-$>$dessinateur-aux}).
 \end{itemize}
 
 \subsubsection{Représentation fonctionnelle}
+
+Utiliser des fonctions pour représenter des dessins présentent
+certains avantages: les dessins sont facilement composables (voir la
+fonction \emph{compose}) et en passant une fonction de transformation
+on peut facilement paramétriser un dessin.
+
+La représentation fonctionnelle présente également des inconvénients:
+les performances sont moins bonnes que si on utilisait un
+représentation matricielle.  Par exemple, si on compose des appels à
+\emph{rotation}, \emph{translation} et \emph{reduction}, on va:
+
+\begin{enumerate}
+\item Déballer le dessin
+\item Appliquer une transformation à chaque vecteur de chaque segment
+  du dessin
+\item Ré-emballer le dessin
+\end{enumerate}
+
+Et ce processus sera répété trois fois pour chaque appel.  Dans une
+représentation matricielle, comme ces opérations sont linéaires, on
+pourrait multiplier les trois matrices les décrivant ensemble et
+appliquer la matrice résultante une seule fois aux vecteurs.  Pour de
+grands dessins, on aurait un gain de performance appréciable.
 
 
 \end{document}

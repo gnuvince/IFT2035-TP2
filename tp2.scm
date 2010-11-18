@@ -116,7 +116,7 @@
                     (loop (quotient m 10) (cons (modulo m 10) acc))))))
       (loop n '()))))
 
-
+;; Combine les listes de segments de deux dessinateurs.
 (define combine
   (lambda (dessinateur1 dessinateur2)
     (lambda (transf)
