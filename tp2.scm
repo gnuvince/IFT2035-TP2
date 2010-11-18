@@ -128,13 +128,17 @@
                      (profondeur-arbre (cdr lst))))))))
 
 
-;; Retourne le nombre de feuilles (atome ou ()) d'un arbre.
-(define compter-feuilles
+;; Retourne un arbre du nombre de feuilles d'un arbre
+(define arbre-compte-feuilles
   (lambda (lst)
-    (cond
-     ((not (pair? lst)) 1)
-     (else (+ (compter-feuilles (car lst))
-              (compter-feuilles (cdr lst)))))))
+    (cond ((not (pair? lst)) '(1 () ()))
+          (else
+           (let ((gauche (arbre-compte-feuilles (car lst)))
+                 (droite (arbre-compte-feuilles (cdr lst))))
+             (list (+ (car gauche) (car droite))
+                   gauche
+                   droite))))))
+
 ;;;;;
 
 
@@ -281,11 +285,11 @@
 ;;   et à droite et s'appeler récursivement avec le sous-arbre
 ;;   gauche et le sous-arbre droit.
 (define arbre->dessinateur-aux
-  (lambda (lst hauteur largeur x y)
+  (lambda (lst enfants hauteur largeur x y)
     (if (not (pair? lst))
         vide
-        (let* ((noeuds-gauche (compter-feuilles (car lst)))
-               (noeuds-droite (compter-feuilles (cdr lst)))
+        (let* ((noeuds-gauche (caadr enfants))
+               (noeuds-droite (caaddr enfants))
                (new-x1 (- x (/ noeuds-droite largeur)))
                (new-x2 (+ x (/ noeuds-gauche largeur)))
                (new-y (- y hauteur)))
@@ -294,8 +298,8 @@
            (superposition
             (ligne (vect x y) (vect new-x2 new-y))
             (superposition
-             (arbre->dessinateur-aux (car lst) hauteur largeur new-x1 new-y)
-             (arbre->dessinateur-aux (cdr lst) hauteur largeur new-x2 new-y))))))))
+             (arbre->dessinateur-aux (car lst) (cadr enfants) hauteur largeur new-x1 new-y)
+             (arbre->dessinateur-aux (cdr lst) (caddr enfants) hauteur largeur new-x2 new-y))))))))
 
 
 ;; Dessine un arbre
@@ -303,10 +307,12 @@
   (lambda (lst)
     (if (null? lst)
         vide
-        (arbre->dessinateur-aux
-         lst                            ; l'arbre
-         (/ 2 (profondeur-arbre lst))   ; la hauteur d'un niveau
-         (compter-feuilles lst)         ; le nombre total de feuilles
-         0                              ; position x initiale
-         1))))                          ; position y initiale
+        (let ((nombre-enfants (arbre-compte-feuilles lst)))
+          (arbre->dessinateur-aux
+           lst                            ; l'arbre
+           nombre-enfants                 ; l'arbre du nombre d'enfants
+           (/ 2 (profondeur-arbre lst))   ; la hauteur d'un niveau
+           (car nombre-enfants)           ; le nombre total de feuilles
+           0                              ; position x initiale
+           1)))))                         ; position y initiale
 ;;;;;

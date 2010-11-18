@@ -86,6 +86,55 @@ résultat et retourner ce nouveau dessinateur.  La fonction
 par \emph{facty} verticalement.
 
 
+\section{Impressions de Scheme}
+
+\subsection{Vincent}
+
+\subsubsection{Points positifs de Scheme}
+
+\begin{itemize}
+\item Les fonctions anonymes et fermetures permettent de facilement
+  paramétriser des fonctions.
+\item Les fonctions d'ordre supérieur rendent plus concis la
+  manipulation de listes.
+\item L'optimisation des appels terminaux permet d'écrire des
+  fonctions sans effets de bords, mais dont les performances sont
+  équivalentes à celles d'un langage impératif.
+\item L'utilisation d'une liste pour stocker les segments permet une
+  manipulation facile d'un dessin via les fonctions d'ordre supérieur.
+\item Le ``garbage-collector'' permet de manipuler des structures
+  complexes sans avoir à se soucier de les libérer nous-mêmes.
+\end{itemize}
+
+\subsubsection{Points négatifs de Scheme}
+\begin{itemize}
+\item L'absence de typage statique permet à des bogues -- qui seraient
+  normalement capturés à la compilation -- de ne se manifester qu'à
+  l'exécution et seulement si on a la bonne fortune de tester avec les
+  bons paramètres.
+\item L'utilisation de la paire comme base pour nos types, ainsi que
+  l'absence de typage statique, fait que le programmeur a l'entière
+  responsabilité de s'assurer que toutes les données sont bien
+  formées.
+\item L'utilisation de la paire comme base pour les arbres fait qu'il
+  n'est pas très naturel d'avoir des arbres contenant des informations
+  sur les noeuds.  On doit employer des designs ad hoc, comme par
+  exemple mettre l'information dans le \emph{car} de la paire et de
+  stocker les pointeurs vers les sous-arbres de gauche et de droite
+  dans une pair dans le \emph{cdr}.  Évidemment, la responsabilité de
+  respecter ce design est celle du programmeur et le compilateur ne
+  peut pas aider.
+\item Ce n'est pas très logique d'avoir des fonctions qui retournent
+  des valeurs de types différents (ex.: \emph{assoc}).
+\item La syntaxe préfixe est un peu lourde dans les calculs
+  mathématiques.
+\item Dans Emacs, il y a aucune complétion de code, détection
+  d'erreurs de syntaxe, d'accès à la documentation, etc.
+\item Scheme ne possède pas de ``pattern matching'' (comme dans ML ou
+  Haskell) qui permettrait de déconstruire une structure de données.
+  Cela demande donc de faire beaucoup d'appels manuels à des fonctions
+  comme \emph{car} et \emph{cdr}.
+\end{itemize}
 
 
 \end{document}
