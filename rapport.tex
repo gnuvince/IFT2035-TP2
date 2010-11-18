@@ -93,17 +93,26 @@ par \emph{facty} verticalement.
 \subsubsection{Points positifs de Scheme}
 
 \begin{itemize}
-\item Les fonctions anonymes et fermetures permettent de facilement
-  paramétriser des fonctions.
+\item Les fonctions anonymes et les fermetures permettent de
+  facilement paramétriser des fonctions et permettent des abstractions
+  qui seraient impossibles ou inconvenantes en Java.
 \item Les fonctions d'ordre supérieur rendent plus concis la
   manipulation de listes.
 \item L'optimisation des appels terminaux permet d'écrire des
-  fonctions sans effets de bords, mais dont les performances sont
+  fonctions sans effets de bord, mais dont les performances sont
   équivalentes à celles d'un langage impératif.
 \item L'utilisation d'une liste pour stocker les segments permet une
-  manipulation facile d'un dessin via les fonctions d'ordre supérieur.
+  manipulation facile d'un dessin via les fonctions d'ordre supérieur
+  (ex.: \emph{map}).
 \item Le ``garbage-collector'' permet de manipuler des structures
   complexes sans avoir à se soucier de les libérer nous-mêmes.
+\item On peut accomplir beaucoup de choses complexes sans jamais avoir
+  à modifier le contenu d'une variable.
+\item L'intégration de l'interpréteur \emph{gsi} avec Emacs permet un
+  cycle de développement beaucoup plus rapide que ce qui est possible
+  avec des langages comme C ou Java.
+\item Les fonctions \emph{trace} et \emph{time} sont très utiles pour
+  analyser et comparer la performance d'une fonction.
 \end{itemize}
 
 \subsubsection{Points négatifs de Scheme}
@@ -111,30 +120,40 @@ par \emph{facty} verticalement.
 \item L'absence de typage statique permet à des bogues -- qui seraient
   normalement capturés à la compilation -- de ne se manifester qu'à
   l'exécution et seulement si on a la bonne fortune de tester avec les
-  bons paramètres.
+  bons (ou mauvais) paramètres.
 \item L'utilisation de la paire comme base pour nos types, ainsi que
-  l'absence de typage statique, fait que le programmeur a l'entière
-  responsabilité de s'assurer que toutes les données sont bien
-  formées.
-\item L'utilisation de la paire comme base pour les arbres fait qu'il
-  n'est pas très naturel d'avoir des arbres contenant des informations
-  sur les noeuds.  On doit employer des designs ad hoc, comme par
-  exemple mettre l'information dans le \emph{car} de la paire et de
-  stocker les pointeurs vers les sous-arbres de gauche et de droite
-  dans une pair dans le \emph{cdr}.  Évidemment, la responsabilité de
-  respecter ce design est celle du programmeur et le compilateur ne
-  peut pas aider.
-\item Ce n'est pas très logique d'avoir des fonctions qui retournent
-  des valeurs de types différents (ex.: \emph{assoc}).
+  l'absence de typage statique, fait que la responsabilité de
+  s'assurer que toutes les données sont bien construites repose
+  entièrement sur les épaules du programmeur.
+\item L'utilisation de la paire comme base pour les arbres leur donne
+  un ``goût'' très ad hoc.  On peut par exemple décider de mettre
+  l'information propre à un noeud dans le \emph{car} de la paire et de
+  mettre les deux branches dans une autre paire qu'on stock dans le
+  \emph{cdr} de la paire-noeud.  Évidemment, la responsabilité de
+  respecter ce choix de design est celle du programmeur et le
+  compilateur ne peut pas aider.
+\item Il n'est pas très logique d'avoir des fonctions qui retournent
+  des valeurs de types différents (ex.: \emph{assoc}).  Une meilleure
+  solution serait d'établir une norme (étant donné qu'on ne encoder
+  cette décision dans le système de type et laisser le compilateur
+  faire la police) dictant que si une méthode ne retourne ``rien'',
+  elle retourne la liste vide, et que si elle retourne une valeur,
+  elle la retourne dans une liste. \footnote{Ceci donnerait quelque
+    chose de similaire au type \emph{option} de ML.}
 \item La syntaxe préfixe est un peu lourde dans les calculs
   mathématiques.
 \item Dans Emacs, il y a aucune complétion de code, détection
-  d'erreurs de syntaxe, d'accès à la documentation, etc.
+  d'erreurs de syntaxe ou d'accès à la documentation comme on peut
+  trouver dans des IDE pour des langages comme Java.  Peut-être qu'une
+  intégration de Gambit avec SLIME pourrait aider?
 \item Scheme ne possède pas de ``pattern matching'' (comme dans ML ou
-  Haskell) qui permettrait de déconstruire une structure de données.
+  Haskell) qui permet de ``déconstruire'' une structure de données.
   Cela demande donc de faire beaucoup d'appels manuels à des fonctions
-  comme \emph{car} et \emph{cdr}.
+  comme \emph{car} et \emph{cdr} (voir les appels à \emph{caaddr} dans
+  \emph{arbre-$>$dessinateur-aux}).
 \end{itemize}
+
+\subsubsection{Représentation fonctionnelle}
 
 
 \end{document}

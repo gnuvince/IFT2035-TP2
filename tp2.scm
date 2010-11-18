@@ -117,6 +117,11 @@
       (loop n '()))))
 
 
+(define combine
+  (lambda (dessinateur1 dessinateur2)
+    (lambda (transf)
+      (append (dessinateur1 transf) (dessinateur2 transf)))))
+
 ;; Retourne la profondeur d'un arbre
 ;; arbre vide = 0
 ;; arbre      = 1 + max(gauche, droite)
@@ -157,11 +162,11 @@
     (lambda (transf)
       (letrec ((loop
                 (lambda (lst)
-                  (case (length lst)
-                    ((0) '())
-                    ((1) (liste-vects transf (car lst) (car lst) '()))
-                    (else (append (liste-vects transf (car lst) (cadr lst) '())
-                                  (loop (cdr lst))))))))
+                  (cond
+                   ((null? lst) '())
+                   ((null? (cdr lst)) '())
+                   (else (append (liste-vects transf (car lst) (cadr lst) '())
+                                 (loop (cdr lst))))))))
         (loop vect-list)))))
 
 
@@ -201,34 +206,26 @@
 ;; Dessine deux dessins l'un par-dessus l'autre.
 (define superposition
   (lambda (dessinateur1 dessinateur2)
-    (lambda (transf)
-      (append (dessinateur1 transf) (dessinateur2 transf)))))
+    (combine dessinateur1 dessinateur2)))
 
 
 ;; Affiche un dessin au-dessus d'un autre selon une proportion donnée.
 (define pile
   (lambda (prop dessinateur1 dessinateur2)
-    (lambda (transf)
-      (let ((m (- 1 prop)))
-        (append ((translation 0
-                              (- m)
-                              (reduction 1 prop dessinateur1)) transf)
-                ((translation 0
-                              prop
-                              (reduction 1 m dessinateur2)) transf))))))
+    (let ((m (- 1 prop)))
+      (combine
+       (translation 0 (- m) (reduction 1 prop dessinateur1))
+       (translation 0 prop  (reduction 1 m    dessinateur2))))))
 
 
 ;; Affiche un dessin un à côté de l'autre selon une proportion donnée.
 (define cote-a-cote
   (lambda (prop dessinateur1 dessinateur2)
-    (lambda (transf)
-      (let ((m (- 1 prop)))
-        (append ((translation (- m)
-                              0
-                              (reduction prop 1 dessinateur1)) transf)
-                ((translation prop
-                              0
-                              (reduction m 1 dessinateur2)) transf))))))
+    (let ((m (- 1 prop)))
+      (combine
+       (translation (- m) 0 (reduction prop 1 dessinateur1))
+       (translation prop  0 (reduction m    1 dessinateur2)))))
+
 
 ;; Dessine le chiffre `d`.
 (define chiffre
