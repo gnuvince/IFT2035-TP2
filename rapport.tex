@@ -1,4 +1,4 @@
-\documentclass[10pt]{report}
+\documentclass[10pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
@@ -72,8 +72,19 @@ La fonction de rotation va déballer le dessinateur, appliquer
 résultat et retourner ce nouveau dessinateur.  La fonction
 \emph{rotate-segm} effectue une rotation horaire de \emph{angle}
 degrés aux vecteurs d'un segment.  Une fonction auxiliaire
-\emph{degre-$>$radian} effecture la conversion de degrés à radians,
+\emph{degre-$>$radian} effectue la conversion de degrés à radians,
 qui sont utilisés par les fonction trigonométrique de Scheme.
+
+
+\subsection{loupe}
+
+\usage{(loupe fact dessinateur)}
+
+La fonction loupe déballe le dessinateur, applique la transformation
+non-linéaire \emph{loupe-segm} à chacun des segments du
+dessinateur. La fonction \emph{loupe-segm} transforme chaque vecteur
+du segment par la fonction énoncée dans le devoir en utilisant
+\emph{fact} en paramètre.
 
 \subsection{reduction}
 
@@ -85,6 +96,44 @@ résultat et retourner ce nouveau dessinateur.  La fonction
 \emph{etire-segm} étire un segment par \emph{factx} horizontalement et
 par \emph{facty} verticalement.
 
+\subsection{superposition}
+
+\usage{(superposition dessinateur1 dessinateur2)}
+
+La fonction superposition déballe les deux dessinateurs, emballe leurs
+segments respectifs et retourne le nouveau dessinateur ainsi créé.
+
+
+\subsection{pile}
+
+\usage{(pile prop dessinateur1 dessinateur2)}
+
+La fonction pile déballe les deux dessinateurs, applique une réduction
+verticale d'un facteur \emph{prop} sur le premier dessinateur et
+\emph{1-prop} sur le deuxième. La fonction combine finalement les deux
+ensembles de points déplacés verticalement dans les mêmes proportions.
+
+
+\subsection{cote-a-cote}
+
+\usage{(cote-a-cote prop dessinateur1 dessinateur2)}
+
+La fonction cote-a-cote déballe les deux dessinateurs, applique une
+réduction horizontale d'un facteur \emph{prop} sur le premier
+dessinateur et \emph{1-prop} sur le deuxième. La fonction combine
+finalement les deux ensembles de points déplacés horizontalement dans
+les mêmes proportions.
+
+
+\subsection{entier-$>$dessinateur}
+
+\usage{(entier-$>$dessinateur n)}
+
+La fonction entier-$>$dessinateur commence par extraire les chiffres
+composant le nombre \emph{n}. La fonction construit ensuite la
+représentation du nombre en appelant récursivement la fonction
+\emph{cote-a-cote} sur les chiffres réduits horizontalement en
+proportion inverse du nombre de chiffres dans \emph{n}.
 
 
 \subsection{arbre-$>$dessinateur}
@@ -128,7 +177,7 @@ plusieurs fonctions auxiliaires que nous allons examiner:
 
 \begin{itemize}
 \item Les fonctions anonymes et les fermetures permettent de
-  facilement paramétriser des fonctions et permettent des abstractions
+  facilement paramétrer des fonctions et permettent des abstractions
   qui seraient impossibles ou inconvenantes en Java.
 \item Les fonctions d'ordre supérieur rendent plus concis la
   manipulation de listes.
@@ -155,10 +204,15 @@ plusieurs fonctions auxiliaires que nous allons examiner:
   normalement capturés à la compilation -- de ne se manifester qu'à
   l'exécution et seulement si on a la bonne fortune de tester avec les
   bons (ou mauvais) paramètres.
-\item L'utilisation de la paire comme base pour nos types, ainsi que
-  l'absence de typage statique, fait que la responsabilité de
-  s'assurer que toutes les données sont bien construites repose
-  entièrement sur les épaules du programmeur.
+\item L'interface et l'implantation des structures de données n'est
+  pas assez séparée.  L'utilisation de la paire comme base pour nos
+  types, ainsi que l'absence de typage statique, fait que la
+  responsabilité de s'assurer que toutes les données sont bien
+  construites repose entièrement sur les épaules du programmeur.  De
+  plus, des données créées avec \emph{cons} et \emph{list} plutôt que
+  \emph{vect} et \emph{segm} fontionneraient, mais briseraient si on
+  décidait de modifier la représentation des dessins (ex.: utiliser
+  des vecteurs plutôt que des listes).
 \item L'utilisation de la paire comme base pour les arbres leur donne
   un ``goût'' très ad hoc.  On peut par exemple décider de mettre
   l'information propre à un noeud dans le \emph{car} de la paire et de
@@ -183,16 +237,95 @@ plusieurs fonctions auxiliaires que nous allons examiner:
 \item Scheme ne possède pas de ``pattern matching'' (comme dans ML ou
   Haskell) qui permet de ``déconstruire'' une structure de données.
   Cela demande donc de faire beaucoup d'appels manuels de fonction
-  pourr accéder aux membres internes d'une structure de données (voir
+  pour accéder aux membres internes d'une structure de données (voir
   les appels à \emph{caaddr} dans \emph{arbre-$>$dessinateur-aux}).
 \end{itemize}
 
-\subsubsection{Représentation fonctionnelle}
+\subsection{Eric}
+
+\subsubsection{Forces de Scheme pour cette application}
+
+\begin{itemize}
+\item Une bonne stratégie pour développer cette application est de la
+  séparer en une suite de couches d'abstraction de représentation des
+  objets composant un dessin (du dessin physique à l'écran, la
+  représentation des vecteurs et des segments, jusqu'aux dessinateurs
+  et fonctions de transformation des dessins). Scheme possède (au
+  moins) deux avantages en ce sens: (1) L'utilisation du typage
+  dynamique facilite la mise en oeuvre de cette stratégie. La
+  représentation des données est déterminée localement ou au niveau
+  d'abstraction inférieur et ne dépend que d'un contrat fonctionnel
+  implicite entre ces deux niveaux. L'utilisation de fonctions
+  abstraites de création et de contrôle (vect, vect?, vect-x etc)
+  garantie le respect de ces contrats. (2) L'utilisation des
+  fermetures permet une manipulation fonctionnelle facile et efficace
+  des objets abstraits de haut niveau (dessinateur, arbre etc).
+\item L'application développée dans ce travail est fondamentalement un
+  problème mathématique de représentation de formes géométriques et de
+  graphes. L'utilisation du caractère fonctionnel de Scheme est donc
+  tout à fait naturel dans ce cas. Il y a une très petite ``distance''
+  entre les concepts mathématiques et leur représentation dans le
+  langage Scheme. La quantité de travail mise dans l'analyse
+  conceptuelle mathématique du problème pour mettre en évidence la
+  nature du problème contribue proportionnellement (grande efficience)
+  à la résolution du problème. De plus la compréhension des fondements
+  mathématiques du problème peut, en général, nous donner des pistes
+  d'optimisation du programme.
+\item La récupération automatique des structures de données mortes
+  (via le GC) libère le programmeur de cette tâche et le code de
+  toutes les instructions sans relation avec le problème.
+\item L'utilisation de Java nous aurait obligé une quantité de travail
+  non négligeable pour bâtir les structures de données. Scheme réduit
+  la complexité de la représentation des données en utilisant la
+  syntaxe du langage comme structure de données.
+\item En Java, les niveaux d'abstraction auraient été implantés par
+  les classes, ce qui est une façon assez efficace de le faire mais
+  ceci nous aurait éloigné conceptuellement de la nature mathématique
+  du problème.
+\end{itemize}
+
+\subsubsection{Faiblesses de Scheme pour cette application}
+\begin{itemize}
+\item Le développement dans un langage à typage dynamique impose au
+  développeur toute la responsabilité de vérifier le type des données
+  passées aux fonctions. Ceci est un problème relativement mineur pour
+  un petit projet comme ce devoir ou pour un produit mature où le
+  contrat de chaque fonction est bien défini et documenté. Cette
+  caractéristique peut compliquer la tâche du programmeur dans le
+  contexte d'un produit non mature pour lequel les structures de
+  données et les relations fonctionnelles évoluent beaucoup.
+\item L'utilisation de Java aurait permis de puiser dans un grand
+  nombre de librairies existantes et possiblement optimisées pour nos
+  besoins.
+
+\end{itemize}
+
+\subsection{Environnements de développement}
+Nous n'avons utilisé, pour réaliser ce travail, que l'environnement
+Emacs. Emacs est un excellent outil de développement pour les langages
+de la famille Lisp. L'utilisation d'un IDE tel Jazz/Jedi aurait
+peut-être ajouté à notre productivité. Dans les faits, son
+implantation dans mon environnement de travail (MacOS X) s'est avérée
+difficile et a donc été abandonnée.
+
+
+\section{Représentation fonctionnelle}
 
 Utiliser des fonctions pour représenter des dessins présentent
 certains avantages: les dessins sont facilement composables (voir la
 fonction \emph{compose}) et en passant une fonction de transformation
-on peut facilement paramétriser un dessin.
+on peut facilement paramétrer un dessin.
+
+Quelques autres avantages:
+
+\begin{itemize}
+\item Les fonctions récursives terminales permettent de garder la
+  solution computationnelle très proche de la nature mathématique du
+  problème sans pour autant sacrifier la performance de l'application.
+\item Dans le cadre d'un projet de grande envergure, la programmation
+  fonctionnelle permettrait de paralléliser les calculs d'un grand
+  nombre de dessin.
+\end{itemize}
 
 La représentation fonctionnelle présente également des inconvénients:
 les performances sont moins bonnes que si on utilisait un
@@ -211,6 +344,8 @@ représentation matricielle, comme ces opérations sont linéaires, on
 pourrait multiplier les trois matrices les décrivant ensemble et
 appliquer la matrice résultante une seule fois aux vecteurs.  Pour de
 grands dessins, on aurait un gain de performance appréciable.
+
+
 
 
 \end{document}
